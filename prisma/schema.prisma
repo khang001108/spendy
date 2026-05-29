@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  password     String
+  avatar       String?
+  currency     String        @default("VND")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  transactions Transaction[]
+  categories   Category[]
+  goals        Goal[]
+  budgets      Budget[]
+}
+
+model Category {
+  id           String        @id @default(cuid())
+  name         String
+  icon         String        @default("💰")
+  color        String        @default("#6366f1")
+  type         String        // "income" | "expense"
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([name, userId])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  amount      Float
+  type        String   // "income" | "expense"
+  note        String   @default("")
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  userId      String
+  categoryId  String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [categoryId], references: [id])
+}
+
+model Goal {
+  id          String   @id @default(cuid())
+  name        String
+  icon        String   @default("🎯")
+  targetAmount Float
+  savedAmount Float    @default(0)
+  deadline    DateTime?
+  color       String   @default("#10b981")
+  status      String   @default("active") // "active" | "completed" | "cancelled"
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  amount     Float
+  month      Int      // 1-12
+  year       Int
+  userId     String
+  categoryId String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, categoryId, month, year])
+}
