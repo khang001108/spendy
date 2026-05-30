@@ -40,23 +40,27 @@ export default function NotificationsPage() {
   async function markRead(id: string) {
     await fetch(`/api/notifications/${id}`, { method: "PATCH" });
     load();
+    window.dispatchEvent(new Event("spendy:notif_update"));
   }
 
   async function markAllRead() {
-    // Calls the dedicated /all route (not [id])
     await fetch("/api/notifications/all", { method: "PATCH" });
     load();
+    // Cập nhật badge trên sidebar ngay lập tức
+    window.dispatchEvent(new Event("spendy:notif_update"));
   }
 
   async function deleteNotif(id: string) {
     await fetch(`/api/notifications/${id}`, { method: "DELETE" });
     load();
+    window.dispatchEvent(new Event("spendy:notif_update"));
   }
 
   async function clearAll() {
     if (!confirm("Xóa tất cả thông báo?")) return;
     await fetch("/api/notifications/all", { method: "DELETE" });
     load();
+    window.dispatchEvent(new Event("spendy:notif_update"));
   }
 
   const unread = notifications.filter(n => !n.read).length;

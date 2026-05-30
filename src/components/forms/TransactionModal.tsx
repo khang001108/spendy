@@ -42,32 +42,36 @@ export function TransactionModal({ onClose, onSaved, editTx }: Props) {
     setLoading(false);
   }
 
-  // Format amount input
   function handleAmountInput(val: string) {
     const clean = val.replace(/[^0-9]/g, "");
     setAmount(clean);
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100 dark:border-gray-800">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="font-bold text-gray-900">{editTx ? "Sửa giao dịch" : "Thêm giao dịch"}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+        <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
+          <h2 className="font-bold text-gray-900 dark:text-white text-lg">
+            {editTx ? "Sửa giao dịch" : "Thêm giao dịch"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-500 dark:text-gray-400"
+          >
             <X size={18} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {/* Type toggle */}
-          <div className="flex rounded-xl overflow-hidden border border-gray-200">
+          <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
             {(["expense", "income"] as const).map((t) => (
               <button key={t} type="button" onClick={() => setType(t)}
                 className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
                   type === t
                     ? t === "expense" ? "bg-red-500 text-white" : "bg-green-500 text-white"
-                    : "bg-white text-gray-500 hover:bg-gray-50"
+                    : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}>
                 {t === "expense" ? "💸 Chi tiêu" : "💰 Thu nhập"}
               </button>
@@ -81,7 +85,7 @@ export function TransactionModal({ onClose, onSaved, editTx }: Props) {
               value={amount ? parseInt(amount).toLocaleString("vi-VN") : ""}
               onChange={(e) => handleAmountInput(e.target.value.replace(/\./g, "").replace(/,/g, ""))}
             />
-            {amount && <p className="text-xs text-gray-400 mt-1">{formatVND(parseFloat(amount))}</p>}
+            {amount && <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{formatVND(parseFloat(amount))}</p>}
           </div>
 
           {/* Category */}
@@ -91,10 +95,12 @@ export function TransactionModal({ onClose, onSaved, editTx }: Props) {
               {categories.map((cat) => (
                 <button key={cat.id} type="button" onClick={() => setCategoryId(cat.id)}
                   className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all text-xs ${
-                    categoryId === cat.id ? "border-green-400 bg-green-50" : "border-transparent bg-gray-50 hover:bg-gray-100"
+                    categoryId === cat.id
+                      ? "border-green-400 bg-green-50 dark:bg-green-900/30"
+                      : "border-transparent bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}>
                   <span className="text-xl">{cat.icon}</span>
-                  <span className="truncate w-full text-center text-gray-700">{cat.name}</span>
+                  <span className="truncate w-full text-center text-gray-700 dark:text-gray-300">{cat.name}</span>
                 </button>
               ))}
             </div>

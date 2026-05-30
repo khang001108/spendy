@@ -52,10 +52,10 @@ function BudgetModal({ categories, month, year, onClose, onSaved }: {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm">
         <div className="p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-5">Thêm ngân sách</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5">Thêm ngân sách</h2>
           <div className="space-y-4">
             <div>
               <label className="label">Danh mục</label>

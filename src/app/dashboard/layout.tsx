@@ -89,7 +89,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [status]);
 
   function refreshUnread() {
-    fetch("/api/notifications")
+    // Thêm timestamp để tránh cache
+    fetch(`/api/notifications?t=${Date.now()}`)
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) setUnreadCount(data.filter((n: any) => !n.read).length);

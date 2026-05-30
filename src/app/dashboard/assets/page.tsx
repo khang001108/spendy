@@ -56,10 +56,10 @@ function AssetModal({ asset, onClose, onSaved }: { asset?: Asset; onClose: () =>
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-5">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5">
             {asset ? "Chỉnh sửa tài sản" : "Thêm tài sản mới"}
           </h2>
 
@@ -70,14 +70,14 @@ function AssetModal({ asset, onClose, onSaved }: { asset?: Asset; onClose: () =>
               <div className="flex gap-2">
                 <button
                   onClick={() => setForm(f => ({ ...f, type: "financial", subtype: "" }))}
-                  className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all ${form.type === "financial" ? "bg-green-500 text-white border-green-500" : "border-gray-200 text-gray-600"
+                  className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all ${form.type === "financial" ? "bg-green-500 text-white border-green-500" : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"
                     }`}
                 >
                   💳 Tài chính
                 </button>
                 <button
                   onClick={() => setForm(f => ({ ...f, type: "physical", subtype: "" }))}
-                  className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all ${form.type === "physical" ? "bg-blue-500 text-white border-blue-500" : "border-gray-200 text-gray-600"
+                  className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all ${form.type === "physical" ? "bg-blue-500 text-white border-blue-500" : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"
                     }`}
                 >
                   📦 Vật lý

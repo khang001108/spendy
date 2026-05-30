@@ -26,8 +26,8 @@ function GoalModal({ goal, onClose, onSaved }: { goal?: any; onClose: () => void
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6">
         <h2 className="font-bold text-gray-900 mb-4">{goal ? "Sửa mục tiêu" : "Tạo mục tiêu mới"}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -108,8 +108,8 @@ function AddSavingsModal({ goal, onClose, onSaved }: { goal: any; onClose: () =>
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-sm p-6">
         <h2 className="font-bold text-gray-900 mb-1">Thêm tiết kiệm</h2>
         <p className="text-sm text-gray-400 mb-4">Mục tiêu: {goal.name} {goal.icon}</p>
         <form onSubmit={handleAdd} className="space-y-4">

@@ -56,10 +56,10 @@ function TransferModal({ assets, onClose, onSaved }: { assets: Asset[]; onClose:
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 dark:border-gray-800">
         <div className="p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-5">Chuyển tài sản</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5">Chuyển tài sản</h2>
 
           <div className="space-y-4">
             <div>
