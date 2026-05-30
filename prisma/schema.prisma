@@ -22,6 +22,9 @@ model User {
   categories   Category[]
   goals        Goal[]
   budgets      Budget[]
+  assets       Asset[]
+  transfers    Transfer[]
+  notifications Notification[]
 }
 
 model Category {
@@ -78,4 +81,48 @@ model Budget {
   createdAt  DateTime @default(now())
 
   @@unique([userId, categoryId, month, year])
+}
+
+model Asset {
+  id           String    @id @default(cuid())
+  name         String
+  type         String    // "financial" | "physical"
+  subtype      String?   // "cash" | "bank" | "ewallet" | "device" | "vehicle" | etc.
+  purchaseDate DateTime?
+  purchasePrice Float    @default(0)
+  currentValue Float     @default(0)
+  note         String    @default("")
+  image        String?
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  transfersFrom Transfer[] @relation("FromAsset")
+  transfersTo   Transfer[] @relation("ToAsset")
+}
+
+model Transfer {
+  id          String   @id @default(cuid())
+  amount      Float
+  note        String   @default("")
+  date        DateTime @default(now())
+  fromAssetId String
+  toAssetId   String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fromAsset   Asset    @relation("FromAsset", fields: [fromAssetId], references: [id])
+  toAsset     Asset    @relation("ToAsset", fields: [toAssetId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  type      String   // "expense_reminder" | "goal" | "budget_warning" | "bill"
+  read      Boolean  @default(false)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
