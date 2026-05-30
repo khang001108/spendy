@@ -8,7 +8,7 @@ import {
   Wallet, ArrowRightLeft, PieChart, Bell, Settings, Sun, Moon, Monitor
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/app/providers";
+import { useTheme, useProfile } from "@/app/providers";
 
 const NAV = [
   { href: "/dashboard",               label: "Tổng quan",    icon: LayoutDashboard },
@@ -27,9 +27,9 @@ function ThemeToggle() {
   const [open, setOpen] = useState(false);
 
   const options = [
-    { value: "light", label: "Sáng", icon: Sun },
-    { value: "dark",  label: "Tối",  icon: Moon },
-    { value: "system",label: "Hệ thống", icon: Monitor },
+    { value: "light",  label: "Sáng",      icon: Sun },
+    { value: "dark",   label: "Tối",       icon: Moon },
+    { value: "system", label: "Hệ thống",  icon: Monitor },
   ] as const;
 
   const current = options.find(o => o.value === theme) || options[2];
@@ -76,27 +76,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Use ProfileContext so avatar updates immediately after saving in Settings
+  const { avatar, name } = useProfile();
+
+  // Fallback: session name/initial while profile loads
+  const displayName = name || session?.user?.name || "";
+  const displayAvatar = avatar;
+  const displayInitial = displayName.charAt(0).toUpperCase() || "U";
+
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/login");
   }, [status]);
 
-  useEffect(() => {
+  function refreshUnread() {
     fetch("/api/notifications")
       .then(r => r.json())
       .then(data => {
-        if (Array.isArray(data)) {
-          setUnreadCount(data.filter((n: any) => !n.read).length);
-        }
-      }).catch(() => {});
+        if (Array.isArray(data)) setUnreadCount(data.filter((n: any) => !n.read).length);
+      })
+      .catch(() => {});
+  }
+
+  useEffect(() => {
+    refreshUnread();
   }, [pathname]);
+
+  // Listen for new notifications from scheduler
+  useEffect(() => {
+    const handler = () => refreshUnread();
+    window.addEventListener("spendy:notif_update", handler);
+    return () => window.removeEventListener("spendy:notif_update", handler);
+  }, []);
 
   if (status === "loading") return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="text-4xl animate-bounce">💰</div>
     </div>
   );
-
-  const userInitial = session?.user?.name?.charAt(0)?.toUpperCase() || "U";
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-950">
@@ -138,22 +154,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
         </nav>
 
-        {/* Bottom: Theme + User + Logout */}
+        {/* Bottom */}
         <div className="p-3 border-t border-gray-100 dark:border-gray-800 space-y-1">
           <ThemeToggle />
 
           <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800">
-            <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center font-bold text-green-700 dark:text-green-400 text-sm">
-              {userInitial}
+            {/* Avatar: show emoji if set, else initial letter */}
+            <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center font-bold text-green-700 dark:text-green-400 text-sm shrink-0 select-none">
+              {displayAvatar || displayInitial}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{session?.user?.name}</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{session?.user?.email}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                {displayName}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                {session?.user?.email}
+              </p>
             </div>
           </div>
 
-          <button onClick={() => signOut({ callbackUrl: "/auth/login" })}
-            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
+          <button
+            onClick={() => signOut({ callbackUrl: "/auth/login" })}
+            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+          >
             <LogOut size={16} /> Đăng xuất
           </button>
         </div>

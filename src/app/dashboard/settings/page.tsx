@@ -63,8 +63,11 @@ export default function SettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profile),
       });
-      if (res.ok) showToast("Đã cập nhật hồ sơ");
-      else {
+      if (res.ok) {
+        showToast("Đã cập nhật hồ sơ");
+        // Notify layout to refresh avatar immediately
+        window.dispatchEvent(new Event("spendy:profile_updated"));
+      } else {
         const d = await res.json();
         showToast(d.error || "Cập nhật thất bại", "error");
       }
@@ -174,6 +177,7 @@ export default function SettingsPage() {
     } catch {}
 
     showToast("Đã lưu cài đặt thông báo");
+    window.dispatchEvent(new Event("spendy:notif_update"));
   }
 
   const TABS = [
@@ -392,11 +396,17 @@ export default function SettingsPage() {
       {/* Notifications tab */}
       {activeTab === "notifications" && (
         <div className="card space-y-5">
-          <div>
-            <h2 className="font-semibold text-gray-900 dark:text-white">Cài đặt thông báo</h2>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              Thông báo được lưu trong app. Nhấn "Lưu" để tạo thông báo thử nghiệm.
-            </p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="font-semibold text-gray-900 dark:text-white">Cài đặt thông báo</h2>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                Scheduler chạy mỗi phút khi app đang mở. Nhấn "Lưu" để áp dụng.
+              </p>
+            </div>
+            <span className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full font-medium shrink-0">
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+              Đang chạy
+            </span>
           </div>
 
           <div className="space-y-4">
