@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   LayoutDashboard, ArrowLeftRight, Target, BarChart3, LogOut,
-  User, Wallet, ArrowRightLeft, PieChart, Bell, Settings
+  Wallet, ArrowRightLeft, PieChart, Bell, Settings, Sun, Moon, Monitor
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/app/providers";
 
 const NAV = [
   { href: "/dashboard",               label: "Tổng quan",    icon: LayoutDashboard },
@@ -20,6 +21,54 @@ const NAV = [
   { href: "/dashboard/notifications", label: "Thông báo",    icon: Bell },
   { href: "/dashboard/settings",      label: "Cài đặt",      icon: Settings },
 ];
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+
+  const options = [
+    { value: "light", label: "Sáng", icon: Sun },
+    { value: "dark",  label: "Tối",  icon: Moon },
+    { value: "system",label: "Hệ thống", icon: Monitor },
+  ] as const;
+
+  const current = options.find(o => o.value === theme) || options[2];
+  const CurrentIcon = current.icon;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors"
+      >
+        <CurrentIcon size={15} />
+        <span className="flex-1 text-left">{current.label}</span>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute bottom-full left-0 mb-1 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 z-20 py-1">
+            {options.map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                onClick={() => { setTheme(value); setOpen(false); }}
+                className={cn(
+                  "flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors",
+                  theme === value
+                    ? "text-green-600 bg-green-50 dark:bg-green-900/30"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                )}
+              >
+                <Icon size={15} /> {label}
+                {theme === value && <span className="ml-auto text-green-500">✓</span>}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -42,7 +91,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [pathname]);
 
   if (status === "loading") return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="text-4xl animate-bounce">💰</div>
     </div>
   );
@@ -50,16 +99,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const userInitial = session?.user?.name?.charAt(0)?.toUpperCase() || "U";
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-950">
       {/* Sidebar */}
-      <aside className="w-60 bg-white border-r border-gray-100 flex flex-col fixed h-full z-10">
+      <aside className="w-60 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col fixed h-full z-10">
         {/* Logo */}
-        <div className="p-5 border-b border-gray-100">
+        <div className="p-5 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-3">
             <span className="text-3xl">💰</span>
             <div>
-              <p className="font-bold text-gray-900 text-lg leading-tight">Spendy</p>
-              <p className="text-xs text-gray-400">Quản lý tài chính</p>
+              <p className="font-bold text-gray-900 dark:text-white text-lg leading-tight">Spendy</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Quản lý tài chính</p>
             </div>
           </div>
         </div>
@@ -73,7 +122,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link key={href} href={href}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                  active ? "bg-green-50 text-green-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  active
+                    ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
                 )}>
                 <Icon size={17} />
                 <span className="flex-1">{label}</span>
@@ -87,19 +138,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
         </nav>
 
-        {/* User */}
-        <div className="p-3 border-t border-gray-100">
-          <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50 mb-2">
-            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center font-bold text-green-700 text-sm">
+        {/* Bottom: Theme + User + Logout */}
+        <div className="p-3 border-t border-gray-100 dark:border-gray-800 space-y-1">
+          <ThemeToggle />
+
+          <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800">
+            <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center font-bold text-green-700 dark:text-green-400 text-sm">
               {userInitial}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{session?.user?.name}</p>
-              <p className="text-xs text-gray-400 truncate">{session?.user?.email}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{session?.user?.name}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{session?.user?.email}</p>
             </div>
           </div>
+
           <button onClick={() => signOut({ callbackUrl: "/auth/login" })}
-            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-xl transition-colors">
+            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
             <LogOut size={16} /> Đăng xuất
           </button>
         </div>

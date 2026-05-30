@@ -14,10 +14,6 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Spendy",
   },
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/icon-192.png",
-  },
 };
 
 export const viewport: Viewport = {
@@ -28,13 +24,26 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi">
+    <html lang="vi" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Spendy" />
+        {/* Prevent FOUC: apply dark class before React hydrates */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var t = localStorage.getItem('spendy_theme');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (t === 'dark' || (t !== 'light' && prefersDark)) {
+                  document.documentElement.classList.add('dark');
+                }
+              } catch(e) {}
+            `,
+          }}
+        />
       </head>
       <body className={inter.className}>
         <Providers>{children}</Providers>

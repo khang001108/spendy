@@ -57,8 +57,8 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tổng quan</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Chào mừng trở lại! 👋</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tổng quan</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">Chào mừng trở lại! 👋</p>
         </div>
         <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
           <Plus size={18} /> Thêm giao dịch
@@ -161,7 +161,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center justify-between mb-2 text-sm">
             <span className="text-gray-500">Đã chi / Ngân sách</span>
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-gray-900 dark:text-white">
               {formatVND(totalSpent)} / {formatVND(totalBudget)}
             </span>
           </div>
@@ -190,7 +190,7 @@ export default function DashboardPage() {
                     <span className="text-sm text-gray-700 flex items-center gap-1.5">
                       <span>{cat.icon}</span>{cat.name}
                     </span>
-                    <span className="text-sm font-semibold text-gray-900">{formatVND(cat.total)}</span>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{formatVND(cat.total)}</span>
                   </div>
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-500"
@@ -206,7 +206,7 @@ export default function DashboardPage() {
       {/* Recent transactions */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-900">Giao dịch gần đây</h2>
+          <h2 className="font-semibold text-gray-900 dark:text-white">Giao dịch gần đây</h2>
           <Link href="/dashboard/transactions" className="text-sm text-green-600 hover:underline font-medium">Xem tất cả →</Link>
         </div>
         {transactions.length === 0 ? (
