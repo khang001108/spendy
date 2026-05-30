@@ -16,8 +16,7 @@ type Asset = {
 };
 
 const FINANCIAL_SUBTYPES = ["Tiền mặt", "VCB", "MB Bank", "Techcombank", "BIDV", "Momo", "ZaloPay", "VNPay", "Khác"];
-const PHYSICAL_SUBTYPES = ["Laptop", "Điện thoại", "Xe máy", "Ô tô", "Raspberry Pi", "ESP32", "Máy in 3D", "RPLidar", "Khác"];
-
+const PHYSICAL_SUBTYPES = [ "Điện thoại", "Laptop", "Máy tính", "Máy tính bảng", "Xe đạp", "Xe máy", "Ô tô", "Vàng", "Trang sức", "Đất", "Nhà ở", "Chung cư", "Thiết bị công nghiệp", "Robot", "Máy in 3D", "Khác"];
 function AssetModal({ asset, onClose, onSaved }: { asset?: Asset; onClose: () => void; onSaved: () => void }) {
   const [form, setForm] = useState({
     name: asset?.name || "",
@@ -71,17 +70,15 @@ function AssetModal({ asset, onClose, onSaved }: { asset?: Asset; onClose: () =>
               <div className="flex gap-2">
                 <button
                   onClick={() => setForm(f => ({ ...f, type: "financial", subtype: "" }))}
-                  className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all ${
-                    form.type === "financial" ? "bg-green-500 text-white border-green-500" : "border-gray-200 text-gray-600"
-                  }`}
+                  className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all ${form.type === "financial" ? "bg-green-500 text-white border-green-500" : "border-gray-200 text-gray-600"
+                    }`}
                 >
                   💳 Tài chính
                 </button>
                 <button
                   onClick={() => setForm(f => ({ ...f, type: "physical", subtype: "" }))}
-                  className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all ${
-                    form.type === "physical" ? "bg-blue-500 text-white border-blue-500" : "border-gray-200 text-gray-600"
-                  }`}
+                  className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all ${form.type === "physical" ? "bg-blue-500 text-white border-blue-500" : "border-gray-200 text-gray-600"
+                    }`}
                 >
                   📦 Vật lý
                 </button>
@@ -207,7 +204,7 @@ export default function AssetsPage() {
       </div>
 
       {loading ? (
-        <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="card h-20 animate-pulse bg-gray-100" />)}</div>
+        <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="card h-20 animate-pulse bg-gray-100" />)}</div>
       ) : (
         <>
           {/* Financial Assets */}
