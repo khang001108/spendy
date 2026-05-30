@@ -155,6 +155,26 @@ export default function SettingsPage() {
 
   async function saveNotifSettings() {
     localStorage.setItem("spendy_notif_settings", JSON.stringify(notifSettings));
+
+    // Tạo notification xác nhận vào DB để hiện trên trang Thông báo
+    const active = [];
+    if (notifSettings.expenseReminder) active.push(`Nhắc chi tiêu lúc ${notifSettings.expenseReminderTime}`);
+    if (notifSettings.goalReminder) active.push("Nhắc mục tiêu");
+    if (notifSettings.budgetWarning) active.push("Cảnh báo ngân sách");
+    if (notifSettings.billReminder) active.push("Nhắc hóa đơn");
+
+    await fetch("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "✅ Cài đặt thông báo đã lưu",
+        message: active.length > 0
+          ? `Đang bật: ${active.join(", ")}`
+          : "Tất cả thông báo đã tắt",
+        type: "expense_reminder",
+      }),
+    }).catch(() => {});
+
     showToast("Đã lưu cài đặt thông báo");
     window.dispatchEvent(new Event("spendy:notif_update"));
   }
@@ -181,20 +201,35 @@ export default function SettingsPage() {
   async function sendTestPush() {
     setTestLoading(true);
     try {
-      const res = await fetch("/api/push/send", {
+      // Bước 1: Lưu vào DB để hiện trên trang Thông báo
+      await fetch("/api/notifications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: "🔔 Test thông báo Spendy",
-          body: "Thông báo PWA đang hoạt động tốt!",
+          message: `Thông báo PWA hoạt động tốt! (${new Date().toLocaleTimeString("vi-VN")})`,
           type: "expense_reminder",
         }),
       });
-      const d = await res.json();
-      if (res.ok && d.sent > 0) showToast(`Đã gửi test push (${d.sent} thiết bị)`);
-      else showToast(d.error || "Chưa có thiết bị đăng ký nhận push", "error");
-    } catch { showToast("Lỗi gửi test", "error"); }
-    finally { setTestLoading(false); }
+      window.dispatchEvent(new Event("spendy:notif_update"));
+
+      // Bước 2: Hiện notification trực tiếp qua Web Notification API (không cần VAPID)
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("🔔 Test thông báo Spendy", {
+          body: `Thông báo PWA hoạt động tốt! (${new Date().toLocaleTimeString("vi-VN")})`,
+          icon: "/icon-256.png",
+          badge: "/icon-256.png",
+          tag: "spendy-test",
+        });
+        showToast("Đã gửi thông báo test! Kiểm tra thanh thông báo.");
+      } else {
+        showToast("Đã lưu vào trang Thông báo (cần quyền để hiện popup)");
+      }
+    } catch {
+      showToast("Lỗi gửi test", "error");
+    } finally {
+      setTestLoading(false);
+    }
   }
 
   const TABS = [

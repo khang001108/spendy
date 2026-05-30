@@ -29,7 +29,13 @@ export default function NotificationsPage() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    // Auto-refresh khi có thông báo mới từ scheduler
+    const handler = () => load();
+    window.addEventListener("spendy:notif_update", handler);
+    return () => window.removeEventListener("spendy:notif_update", handler);
+  }, []);
 
   async function markRead(id: string) {
     await fetch(`/api/notifications/${id}`, { method: "PATCH" });

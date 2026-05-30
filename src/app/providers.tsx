@@ -33,16 +33,23 @@ function useNotifScheduler() {
         const key = `expense_${today}`;
         if (!lastFiredRef.current[key]) {
           lastFiredRef.current[key] = "1";
-          // POST to /api/notifications which auto-sends push + saves to DB
+          const title = "Nhắc ghi chi tiêu 💳";
+          const body = `Bạn đã ghi chi tiêu hôm nay chưa?`;
+          // Lưu vào DB
           await fetch("/api/notifications", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              title: "Nhắc ghi chi tiêu 💳",
-              message: `Bạn đã ghi chi tiêu hôm nay chưa?`,
-              type: "expense_reminder",
-            }),
+            body: JSON.stringify({ title, message: body, type: "expense_reminder" }),
           });
+          // Hiện Web Notification trực tiếp (không cần VAPID)
+          if ("Notification" in window && Notification.permission === "granted") {
+            new Notification(title, {
+              body,
+              icon: "/icon-256.png",
+              badge: "/icon-256.png",
+              tag: "expense-reminder",
+            });
+          }
           window.dispatchEvent(new Event("spendy:notif_update"));
         }
       }
@@ -60,17 +67,24 @@ function useNotifScheduler() {
             const over = Array.isArray(budgets) ? budgets.filter((b: any) => b.percentage >= 80) : [];
             for (const b of over) {
               const isOver = b.percentage >= 100;
+              const title = isOver
+                ? `⚠️ Vượt ngân sách: ${b.category.name}`
+                : `🔶 Gần hết ngân sách: ${b.category.name}`;
+              const body = `Đã dùng ${b.percentage.toFixed(0)}% (${Number(b.spent).toLocaleString("vi-VN")}đ / ${Number(b.amount).toLocaleString("vi-VN")}đ)`;
               await fetch("/api/notifications", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  title: isOver
-                    ? `⚠️ Vượt ngân sách: ${b.category.name}`
-                    : `🔶 Gần hết ngân sách: ${b.category.name}`,
-                  message: `Đã dùng ${b.percentage.toFixed(0)}% (${Number(b.spent).toLocaleString("vi-VN")}đ / ${Number(b.amount).toLocaleString("vi-VN")}đ)`,
-                  type: "budget_warning",
-                }),
+                body: JSON.stringify({ title, message: body, type: "budget_warning" }),
               });
+              // Hiện Web Notification trực tiếp
+              if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(title, {
+                  body,
+                  icon: "/icon-256.png",
+                  badge: "/icon-256.png",
+                  tag: `budget-${b.category.name}`,
+                });
+              }
             }
             if (over.length > 0) window.dispatchEvent(new Event("spendy:notif_update"));
           }
