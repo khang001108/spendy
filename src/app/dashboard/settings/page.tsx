@@ -64,8 +64,25 @@ export default function SettingsPage() {
       .then(r => r.json())
       .then(d => { if (d && !d.error) setProfile({ name: d.name || "", avatar: d.avatar || "" }); })
       .catch(() => {});
-    const saved = localStorage.getItem("spendy_notif_settings");
-    if (saved) { try { setNotifSettings(JSON.parse(saved)); } catch {} }
+    // Load từ DB (để cron job server đọc được)
+    fetch("/api/settings/notifications")
+      .then(r => r.json())
+      .then(d => {
+        if (d && !d.error) {
+          setNotifSettings({
+            expenseReminder: d.expenseReminder ?? true,
+            expenseReminderTime: d.expenseReminderTime ?? "20:00",
+            goalReminder: d.goalReminder ?? true,
+            budgetWarning: d.budgetWarning ?? true,
+            billReminder: d.billReminder ?? false,
+          });
+        }
+      })
+      .catch(() => {
+        // Fallback to localStorage nếu lỗi
+        const saved = localStorage.getItem("spendy_notif_settings");
+        if (saved) { try { setNotifSettings(JSON.parse(saved)); } catch {} }
+      });
   }, []);
 
   async function saveProfile() {
@@ -154,10 +171,23 @@ export default function SettingsPage() {
   }
 
   async function saveNotifSettings() {
+    // Lưu vào DB để cron job server đọc được (hoạt động kể cả khi tắt web)
+    const res = await fetch("/api/settings/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(notifSettings),
+    });
+
+    // Backup vào localStorage
     localStorage.setItem("spendy_notif_settings", JSON.stringify(notifSettings));
 
-    // Tạo notification xác nhận vào DB để hiện trên trang Thông báo
-    const active = [];
+    if (!res.ok) {
+      showToast("Lỗi lưu cài đặt", "error");
+      return;
+    }
+
+    // Tạo notification xác nhận
+    const active: string[] = [];
     if (notifSettings.expenseReminder) active.push(`Nhắc chi tiêu lúc ${notifSettings.expenseReminderTime}`);
     if (notifSettings.goalReminder) active.push("Nhắc mục tiêu");
     if (notifSettings.budgetWarning) active.push("Cảnh báo ngân sách");
@@ -175,7 +205,7 @@ export default function SettingsPage() {
       }),
     }).catch(() => {});
 
-    showToast("Đã lưu cài đặt thông báo");
+    showToast("Đã lưu! Cron job sẽ gửi push đúng giờ kể cả khi tắt web.");
     window.dispatchEvent(new Event("spendy:notif_update"));
   }
 

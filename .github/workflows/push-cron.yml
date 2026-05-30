@@ -1,0 +1,23 @@
+name: Spendy Push Notification Cron
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Mỗi 5 phút (GitHub Actions minimum)
+  workflow_dispatch:        # Cho phép chạy thủ công để test
+
+jobs:
+  send-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger push notification cron
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X GET "${{ secrets.SPENDY_URL }}/api/cron" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          echo "Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Cron failed with status $HTTP_CODE"
+            exit 1
+          fi

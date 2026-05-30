@@ -1,56 +1,84 @@
-# Hướng dẫn cài đặt PWA Push Notifications
+# Hướng dẫn Push Notification kể cả khi tắt web
+
+## Tổng quan luồng
+
+```
+Render Cron Job (mỗi phút)
+    → GET /api/cron
+    → Đọc NotifSetting từ DB của từng user
+    → Đúng giờ → web-push + VAPID keys
+    → Google Push Server
+    → Service Worker trên điện thoại
+    → Notification popup ✅ (kể cả khi tắt Chrome)
+```
+
+---
 
 ## Bước 1: Tạo VAPID Keys
 
-```bash
-# Cài web-push nếu chưa có
-npm install
-
-# Tạo VAPID keys
-npx web-push generate-vapid-keys
-```
-
-Kết quả trông như thế này:
-```
-Public Key: BEl62iUYgUivxIkv69y...
-Private Key: UUxI4O8-FbRouAev...
-```
-
-## Bước 2: Thêm vào Environment Variables
-
-### Trên Render.com:
-1. Vào Dashboard → spendy → Environment
-2. Thêm 3 biến:
-   - `NEXT_PUBLIC_VAPID_PUBLIC_KEY` = Public Key từ bước 1
-   - `VAPID_PRIVATE_KEY` = Private Key từ bước 1  
-   - `VAPID_EMAIL` = `mailto:your-email@gmail.com`
-
-### Local (.env.local):
-```
-NEXT_PUBLIC_VAPID_PUBLIC_KEY=BEl62iUYg...
-VAPID_PRIVATE_KEY=UUxI4O8-Fb...
-VAPID_EMAIL=mailto:your@email.com
-```
-
-## Bước 3: Deploy
+Chạy lệnh này trên terminal máy tính (1 lần duy nhất):
 
 ```bash
-git add .
-git commit -m "feat: PWA push notifications"
-git push
+npx web-push generate-vapid-keys --non-interactive
 ```
 
-## Bước 4: Bật trên điện thoại
+Ra 2 key, copy lại.
 
-1. Mở Spendy trên Chrome Android/iOS
-2. Vào **Cài đặt → Thông báo**
-3. Bật toggle **"Thông báo đẩy (PWA)"**
-4. Cho phép khi trình duyệt hỏi
-5. Nhấn **"Gửi thông báo test"** để kiểm tra
+---
 
-## Hoạt động như thế nào?
+## Bước 2: Thêm vào Render → Environment Variables
 
-- Service Worker (`/sw.js`) chạy nền trên thiết bị
-- Khi đến giờ nhắc (VD: 20:00), scheduler gọi `/api/notifications`
-- API tự động gửi push qua VAPID đến tất cả thiết bị đã đăng ký
-- Notification hiện ra kể cả khi đóng tab, chỉ cần Chrome đang chạy
+| Key | Value |
+|-----|-------|
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Public Key |
+| `VAPID_PRIVATE_KEY` | Private Key |
+| `VAPID_EMAIL` | `mailto:your@gmail.com` |
+| `CRON_SECRET` | Đặt bất kỳ, VD: `myapp-cron-secret-2024` |
+
+---
+
+## Bước 3: Tạo Cron Job trên Render
+
+1. Render Dashboard → **New → Cron Job**
+2. Điền:
+   - **Name**: `spendy-push-cron`
+   - **Command**:
+     ```
+     curl -s "https://YOUR-APP.onrender.com/api/cron" -H "Authorization: Bearer YOUR-CRON-SECRET"
+     ```
+   - **Schedule**: `* * * * *`
+3. Save
+
+---
+
+## Bước 4: Deploy & Test
+
+```bash
+git add . && git commit -m "feat: push cron" && git push
+```
+
+Test thủ công:
+```
+https://your-app.onrender.com/api/cron?secret=YOUR-CRON-SECRET
+```
+
+---
+
+## Thay thế miễn phí: GitHub Actions
+
+Tạo `.github/workflows/push-cron.yml`:
+
+```yaml
+name: Push Cron
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Mỗi 5 phút (GitHub min)
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -s "${{ secrets.SPENDY_URL }}/api/cron" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+```
+
+Thêm `SPENDY_URL` và `CRON_SECRET` vào GitHub Secrets.

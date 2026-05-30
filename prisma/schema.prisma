@@ -26,6 +26,7 @@ model User {
   transfers    Transfer[]
   notifications Notification[]
   pushSubscriptions PushSubscription[]
+  notifSetting      NotifSetting?
 }
 
 model Category {
@@ -136,4 +137,16 @@ model PushSubscription {
   auth      String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model NotifSetting {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  expenseReminder     Boolean  @default(true)
+  expenseReminderTime String   @default("20:00")
+  goalReminder        Boolean  @default(true)
+  budgetWarning       Boolean  @default(true)
+  billReminder        Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
