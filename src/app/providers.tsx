@@ -8,12 +8,12 @@ interface ThemeCtx { theme: Theme; resolvedTheme: "light" | "dark"; setTheme: (t
 export const ThemeContext = createContext<ThemeCtx>({ theme: "system", resolvedTheme: "light", setTheme: () => {} });
 export const useTheme = () => useContext(ThemeContext);
 
-// ─── Profile (avatar sync across sidebar ↔ settings) ─────────────────────────
+// ─── Profile ──────────────────────────────────────────────────────────────────
 interface ProfileCtx { avatar: string; name: string; refresh: () => void; }
 export const ProfileContext = createContext<ProfileCtx>({ avatar: "", name: "", refresh: () => {} });
 export const useProfile = () => useContext(ProfileContext);
 
-// ─── Notification scheduler ───────────────────────────────────────────────────
+// ─── In-app notification scheduler (fires push via API) ───────────────────────
 function useNotifScheduler() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastFiredRef = useRef<Record<string, string>>({});
@@ -28,31 +28,30 @@ function useNotifScheduler() {
       const hhmm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
       const today = now.toDateString();
 
-      // Expense reminder
+      // ── Expense reminder ──────────────────────────────────────────────────
       if (settings.expenseReminder && settings.expenseReminderTime === hhmm) {
         const key = `expense_${today}`;
         if (!lastFiredRef.current[key]) {
           lastFiredRef.current[key] = "1";
+          // POST to /api/notifications which auto-sends push + saves to DB
           await fetch("/api/notifications", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               title: "Nhắc ghi chi tiêu 💳",
-              message: `Bạn đã ghi chi tiêu hôm nay chưa? (${hhmm})`,
+              message: `Bạn đã ghi chi tiêu hôm nay chưa?`,
               type: "expense_reminder",
             }),
           });
-          // Trigger badge refresh by dispatching custom event
           window.dispatchEvent(new Event("spendy:notif_update"));
         }
       }
 
-      // Budget warning: check once per hour at :00
+      // ── Budget warning (once per hour) ────────────────────────────────────
       if (settings.budgetWarning && now.getMinutes() === 0) {
         const key = `budget_${today}_${now.getHours()}`;
         if (!lastFiredRef.current[key]) {
           lastFiredRef.current[key] = "1";
-          // Fetch budgets and warn if any > 80%
           const m = now.getMonth() + 1;
           const y = now.getFullYear();
           const res = await fetch(`/api/budgets?month=${m}&year=${y}`);
@@ -65,8 +64,10 @@ function useNotifScheduler() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  title: isOver ? `⚠️ Vượt ngân sách: ${b.category.name}` : `🔶 Gần hết ngân sách: ${b.category.name}`,
-                  message: `Đã dùng ${b.percentage.toFixed(0)}% ngân sách tháng này (${b.spent.toLocaleString("vi-VN")}đ / ${b.amount.toLocaleString("vi-VN")}đ)`,
+                  title: isOver
+                    ? `⚠️ Vượt ngân sách: ${b.category.name}`
+                    : `🔶 Gần hết ngân sách: ${b.category.name}`,
+                  message: `Đã dùng ${b.percentage.toFixed(0)}% (${Number(b.spent).toLocaleString("vi-VN")}đ / ${Number(b.amount).toLocaleString("vi-VN")}đ)`,
                   type: "budget_warning",
                 }),
               });
@@ -79,16 +80,25 @@ function useNotifScheduler() {
   }, []);
 
   useEffect(() => {
-    // Check every minute
     checkAndFire();
     intervalRef.current = setInterval(checkAndFire, 60_000);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [checkAndFire]);
 }
 
-// ─── Providers ────────────────────────────────────────────────────────────────
+// ─── Service Worker registration ──────────────────────────────────────────────
+function useServiceWorker() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
+    navigator.serviceWorker
+      .register("/sw.js", { scope: "/" })
+      .then(reg => console.log("[SW] Registered:", reg.scope))
+      .catch(err => console.warn("[SW] Registration failed:", err));
+  }, []);
+}
+
+// ─── Theme Provider ───────────────────────────────────────────────────────────
 function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("system");
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
@@ -100,9 +110,8 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   function applyTheme(t: Theme) {
-    const root = document.documentElement;
     const dark = t === "dark" || (t === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    root.classList.toggle("dark", dark);
+    document.documentElement.classList.toggle("dark", dark);
     setResolvedTheme(dark ? "dark" : "light");
   }
 
@@ -123,6 +132,7 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
   return <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>{children}</ThemeContext.Provider>;
 }
 
+// ─── Profile Provider ─────────────────────────────────────────────────────────
 function ProfileProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState({ avatar: "", name: "" });
 
@@ -138,7 +148,6 @@ function ProfileProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refresh();
-    // Listen for profile updates triggered from settings page
     const handler = () => refresh();
     window.addEventListener("spendy:profile_updated", handler);
     return () => window.removeEventListener("spendy:profile_updated", handler);
@@ -151,19 +160,22 @@ function ProfileProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-function NotifScheduler({ children }: { children: React.ReactNode }) {
+// ─── App Shell ────────────────────────────────────────────────────────────────
+function AppShell({ children }: { children: React.ReactNode }) {
+  useServiceWorker();
   useNotifScheduler();
   return <>{children}</>;
 }
 
+// ─── Root Providers ───────────────────────────────────────────────────────────
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <ThemeProvider>
         <ProfileProvider>
-          <NotifScheduler>
+          <AppShell>
             {children}
-          </NotifScheduler>
+          </AppShell>
         </ProfileProvider>
       </ThemeProvider>
     </SessionProvider>
