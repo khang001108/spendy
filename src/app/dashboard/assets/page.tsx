@@ -163,7 +163,7 @@ export default function AssetsPage() {
   const gainLoss = assets.reduce((s, a) => s + (a.currentValue - a.purchasePrice), 0);
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-4 w-full">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

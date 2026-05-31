@@ -5,24 +5,24 @@
 @layer base {
   * { box-sizing: border-box; }
 
-  /* Touch: hiện action buttons khi touch trên mobile */
-  @media (hover: none) {
+  /* Touch devices: show action buttons always */
+  @media (hover: none) and (pointer: coarse) {
     .group .opacity-0 {
       opacity: 1 !important;
     }
   }
 
-  /* Mobile: remove max-width constraint */
-  @media (max-width: 767px) {
-    .max-w-4xl, .max-w-3xl, .max-w-5xl, .max-w-2xl {
-      max-width: 100% !important;
-    }
+  html {
+    @apply scroll-smooth;
+    height: 100%;
   }
-
-  html { @apply scroll-smooth; }
 
   body {
     @apply bg-gray-50 text-gray-900 antialiased;
+    height: 100%;
+    /* Prevent horizontal scroll trên mobile */
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
   }
   .dark body { @apply bg-gray-950 text-gray-100; }
 
@@ -96,23 +96,9 @@
     @apply text-gray-500 dark:text-gray-400 text-sm mt-0.5;
   }
 
-  /* Mobile bottom nav */
-  .mobile-nav {
-    @apply fixed bottom-0 left-0 right-0 z-50
-           bg-white dark:bg-gray-900
-           border-t border-gray-100 dark:border-gray-800
-           flex items-center justify-around
-           px-2 pb-3 pt-2
-           md:hidden;
-  }
-  .mobile-nav-item {
-    @apply flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl
-           text-gray-400 dark:text-gray-500 transition-colors min-w-0;
-  }
-  .mobile-nav-item.active {
-    @apply text-green-600 dark:text-green-400;
-  }
-  .mobile-nav-label {
-    @apply text-[10px] font-medium leading-tight truncate;
+  /* Mobile utilities */
+  .touch-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
   }
 }

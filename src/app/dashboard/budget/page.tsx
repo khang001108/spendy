@@ -130,7 +130,7 @@ export default function BudgetPage() {
   const overBudget = budgets.filter(b => b.percentage > 100);
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-4 w-full">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

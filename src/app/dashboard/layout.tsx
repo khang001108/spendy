@@ -6,12 +6,13 @@ import Link from "next/link";
 import {
   LayoutDashboard, ArrowLeftRight, Target, BarChart3, LogOut,
   Wallet, ArrowRightLeft, PieChart, Bell, Settings, Sun, Moon,
-  Monitor, Menu, X,
+  Monitor, X, ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme, useProfile } from "@/app/providers";
 
-const NAV = [
+// Desktop sidebar — tất cả menu
+const NAV_FULL = [
   { href: "/dashboard",               label: "Tổng quan",    icon: LayoutDashboard },
   { href: "/dashboard/transactions",  label: "Giao dịch",    icon: ArrowLeftRight },
   { href: "/dashboard/assets",        label: "Tài sản",      icon: Wallet },
@@ -23,8 +24,8 @@ const NAV = [
   { href: "/dashboard/settings",      label: "Cài đặt",      icon: Settings },
 ];
 
-// Mobile bottom nav chỉ hiện 5 mục quan trọng nhất
-const MOBILE_NAV = [
+// Mobile bottom nav — 5 mục chính
+const NAV_MOBILE = [
   { href: "/dashboard",               label: "Tổng quan", icon: LayoutDashboard },
   { href: "/dashboard/transactions",  label: "Giao dịch", icon: ArrowLeftRight },
   { href: "/dashboard/assets",        label: "Tài sản",   icon: Wallet },
@@ -32,31 +33,27 @@ const MOBILE_NAV = [
   { href: "/dashboard/settings",      label: "Cài đặt",   icon: Settings },
 ];
 
-function ThemeToggle({ collapsed = false }: { collapsed?: boolean }) {
+function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
-
-  const options = [
+  const opts = [
     { value: "light",  label: "Sáng",     icon: Sun },
     { value: "dark",   label: "Tối",      icon: Moon },
     { value: "system", label: "Hệ thống", icon: Monitor },
   ] as const;
-
-  const current = options.find(o => o.value === theme) || options[2];
-  const CurrentIcon = current.icon;
-
+  const cur = opts.find(o => o.value === theme) || opts[2];
   return (
     <div className="relative">
       <button onClick={() => setOpen(o => !o)}
         className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors">
-        <CurrentIcon size={15} />
-        {!collapsed && <span className="flex-1 text-left">{current.label}</span>}
+        <cur.icon size={15} />
+        <span className="flex-1 text-left">{cur.label}</span>
       </button>
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute bottom-full left-0 mb-1 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 z-20 py-1">
-            {options.map(({ value, label, icon: Icon }) => (
+            {opts.map(({ value, label, icon: Icon }) => (
               <button key={value} onClick={() => { setTheme(value); setOpen(false); }}
                 className={cn("flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors",
                   theme === value
@@ -79,19 +76,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { avatar, name } = useProfile();
 
   const displayName = name || session?.user?.name || "";
-  const displayAvatar = avatar;
   const displayInitial = displayName.charAt(0).toUpperCase() || "U";
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/login");
   }, [status]);
 
-  // Close mobile menu on route change
-  useEffect(() => { setMobileMenuOpen(false); }, [pathname]);
+  useEffect(() => { setDrawerOpen(false); }, [pathname]);
 
   function refreshUnread() {
     fetch(`/api/notifications?t=${Date.now()}`)
@@ -100,12 +95,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         if (Array.isArray(data)) setUnreadCount(data.filter((n: any) => !n.read).length);
       }).catch(() => {});
   }
-
   useEffect(() => { refreshUnread(); }, [pathname]);
   useEffect(() => {
-    const handler = () => refreshUnread();
-    window.addEventListener("spendy:notif_update", handler);
-    return () => window.removeEventListener("spendy:notif_update", handler);
+    window.addEventListener("spendy:notif_update", refreshUnread);
+    return () => window.removeEventListener("spendy:notif_update", refreshUnread);
   }, []);
 
   if (status === "loading") return (
@@ -114,53 +107,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 
-  const SidebarContent = () => (
-    <>
+  // ── Desktop Sidebar ──────────────────────────────────────────────────────
+  const DesktopSidebar = (
+    <aside className="hidden md:flex w-60 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex-col fixed h-full z-20">
       {/* Logo */}
       <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
-        <span className="text-3xl shrink-0">💰</span>
-        <div className="min-w-0">
+        <span className="text-3xl">💰</span>
+        <div>
           <p className="font-bold text-gray-900 dark:text-white text-lg leading-tight">Spendy</p>
           <p className="text-xs text-gray-400 dark:text-gray-500">Quản lý tài chính</p>
         </div>
-        {/* Close button on mobile */}
-        <button onClick={() => setMobileMenuOpen(false)}
-          className="ml-auto p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden">
-          <X size={18} className="text-gray-500" />
-        </button>
       </div>
-
       {/* Nav */}
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-        {NAV.map(({ href, label, icon: Icon }) => {
+        {NAV_FULL.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
-          const isNotif = href === "/dashboard/notifications";
           return (
             <Link key={href} href={href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+              className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 active
                   ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                   : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
               )}>
               <Icon size={17} className="shrink-0" />
               <span className="flex-1 truncate">{label}</span>
-              {isNotif && unreadCount > 0 && (
-                <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shrink-0">
-                  {unreadCount}
-                </span>
+              {href === "/dashboard/notifications" && unreadCount > 0 && (
+                <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">{unreadCount}</span>
               )}
             </Link>
           );
         })}
       </nav>
-
       {/* Bottom */}
       <div className="p-3 border-t border-gray-100 dark:border-gray-800 space-y-1">
         <ThemeToggle />
         <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800">
           <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center font-bold text-green-700 dark:text-green-400 text-sm shrink-0">
-            {displayAvatar || displayInitial}
+            {avatar || displayInitial}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{displayName}</p>
@@ -172,72 +155,152 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <LogOut size={16} /> Đăng xuất
         </button>
       </div>
-    </>
+    </aside>
   );
 
-  return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-950">
-      {/* ── DESKTOP SIDEBAR ── */}
-      <aside className="hidden md:flex w-60 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex-col fixed h-full z-20">
-        <SidebarContent />
-      </aside>
-
-      {/* ── MOBILE: Hamburger button ── */}
-      <button
-        onClick={() => setMobileMenuOpen(true)}
-        className="md:hidden fixed top-3 left-3 z-30 p-2 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 active:scale-95">
-        <Menu size={20} className="text-gray-700 dark:text-gray-300" />
-      </button>
-
-      {/* ── MOBILE: Slide-in drawer ── */}
-      {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-40 flex">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <div className="relative w-72 max-w-[85vw] bg-white dark:bg-gray-900 flex flex-col h-full shadow-2xl">
-            <SidebarContent />
+  // ── Mobile Drawer (slide từ trái) ────────────────────────────────────────
+  const MobileDrawer = drawerOpen ? (
+    <div className="md:hidden fixed inset-0 z-50 flex">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDrawerOpen(false)} />
+      {/* Drawer panel */}
+      <div className="relative w-72 max-w-[80vw] bg-white dark:bg-gray-900 flex flex-col h-full shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">💰</span>
+            <span className="font-bold text-gray-900 dark:text-white">Spendy</span>
           </div>
+          <button onClick={() => setDrawerOpen(false)}
+            className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400">
+            <X size={18} />
+          </button>
         </div>
-      )}
 
-      {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 md:ml-60 min-h-screen">
-        {/* Mobile top bar */}
-        <div className="md:hidden h-14 flex items-center justify-center border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10">
-          <span className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <span>💰</span> Spendy
-          </span>
-          {unreadCount > 0 && (
+        {/* All nav items */}
+        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+          {NAV_FULL.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+            return (
+              <Link key={href} href={href}
+                className={cn("flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all",
+                  active
+                    ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                )}>
+                <Icon size={18} className="shrink-0" />
+                <span className="flex-1">{label}</span>
+                {href === "/dashboard/notifications" && unreadCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">{unreadCount}</span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* User + theme + logout */}
+        <div className="p-3 border-t border-gray-100 dark:border-gray-800 space-y-1">
+          <ThemeToggle />
+          <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800">
+            <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center font-bold text-green-700 dark:text-green-400 text-sm shrink-0">
+              {avatar || displayInitial}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{displayName}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{session?.user?.email}</p>
+            </div>
+          </div>
+          <button onClick={() => signOut({ callbackUrl: "/auth/login" })}
+            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
+            <LogOut size={16} /> Đăng xuất
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      {DesktopSidebar}
+      {MobileDrawer}
+
+      {/* ── MOBILE LAYOUT ── */}
+      <div className="md:hidden flex flex-col h-screen">
+        {/* Top bar — fixed height 52px */}
+        <header className="shrink-0 h-13 flex items-center justify-between px-3 py-2.5 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10">
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors active:scale-95"
+          >
+            <span className="text-xl">💰</span>
+            <span className="font-bold text-gray-900 dark:text-white text-base">Spendy</span>
+          </button>
+
+          <div className="flex items-center gap-1">
             <Link href="/dashboard/notifications"
-              className="absolute right-4 p-2 text-gray-500 dark:text-gray-400">
-              <Bell size={20} />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+              className="relative p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <Bell size={20} className="text-gray-600 dark:text-gray-400" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </Link>
-          )}
-        </div>
+            <div className="w-7 h-7 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center font-bold text-green-700 dark:text-green-400 text-xs">
+              {avatar || displayInitial}
+            </div>
+          </div>
+        </header>
 
-        <div className="p-3 md:p-6 pb-24 md:pb-6 max-w-full overflow-x-hidden">
+        {/* Content — scroll area, chiếm hết không gian còn lại */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="p-3 pb-4">
+            {children}
+          </div>
+        </main>
+
+        {/* Bottom nav — fixed 56px */}
+        <nav className="shrink-0 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex items-stretch">
+          {NAV_MOBILE.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+            const isNotif = href === "/dashboard/notifications";
+            return (
+              <Link key={href} href={href}
+                className={cn(
+                  "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-colors relative",
+                  active
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-gray-400 dark:text-gray-500"
+                )}>
+                <div className="relative">
+                  <Icon size={21} />
+                  {isNotif && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-red-500 rounded-full text-white text-[8px] font-bold flex items-center justify-center">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </div>
+                <span className={cn(
+                  "text-[10px] font-medium leading-none",
+                  active ? "text-green-600 dark:text-green-400" : "text-gray-400 dark:text-gray-500"
+                )}>
+                  {label}
+                </span>
+                {active && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-green-500 rounded-full" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* ── DESKTOP LAYOUT ── */}
+      <div className="hidden md:block md:ml-60">
+        <div className="p-6">
           {children}
         </div>
-      </main>
-
-      {/* ── MOBILE BOTTOM NAV ── */}
-      <nav className="mobile-nav">
-        {MOBILE_NAV.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
-          const isNotif = href === "/dashboard/notifications";
-          return (
-            <Link key={href} href={href} className={cn("mobile-nav-item", active && "active")}>
-              <div className="relative">
-                <Icon size={22} />
-                {isNotif && unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-                )}
-              </div>
-              <span className="mobile-nav-label">{label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+      </div>
     </div>
   );
 }

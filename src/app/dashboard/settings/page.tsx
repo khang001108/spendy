@@ -208,7 +208,7 @@ export default function SettingsPage() {
   }[push.status];
 
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div className="space-y-4 w-full">
       <div>
         <h1 className="page-title">Cài đặt</h1>
         <p className="page-subtitle">Quản lý tài khoản và tùy chỉnh ứng dụng</p>

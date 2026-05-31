@@ -53,7 +53,7 @@ export default function DashboardPage() {
   const savings = (stats?.totalIncome || 0) - (stats?.totalExpense || 0);
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-4 w-full">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

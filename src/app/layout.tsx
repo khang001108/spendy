@@ -18,8 +18,11 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#22c55e",
+  // Quan trọng: đảm bảo không zoom trên mobile
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -30,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Spendy" />
-        {/* Prevent FOUC: apply dark class before React hydrates */}
+        <meta name="format-detection" content="telephone=no" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
