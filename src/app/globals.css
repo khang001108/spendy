@@ -87,7 +87,7 @@
            bg-white dark:bg-gray-900
            border-t border-gray-100 dark:border-gray-800
            flex items-center justify-around
-           px-2 py-2 safe-area-inset-bottom
+           px-2 pb-3 pt-2
            md:hidden;
   }
   .mobile-nav-item {
