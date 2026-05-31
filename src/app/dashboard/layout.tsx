@@ -29,7 +29,7 @@ const NAV_MOBILE = [
   { href: "/dashboard",               label: "Tổng quan", icon: LayoutDashboard },
   { href: "/dashboard/transactions",  label: "Giao dịch", icon: ArrowLeftRight },
   { href: "/dashboard/assets",        label: "Tài sản",   icon: Wallet },
-  { href: "/dashboard/notifications", label: "Thông báo", icon: Bell },
+  { href: "/dashboard/goals",         label: "Mục tiêu",  icon: Target },
   { href: "/dashboard/settings",      label: "Cài đặt",   icon: Settings },
 ];
 
@@ -124,12 +124,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link key={href} href={href}
-              className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+              className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                 active
                   ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 hover:translate-x-0.5"
               )}>
-              <Icon size={17} className="shrink-0" />
+              <Icon size={17} className={cn("shrink-0 transition-all duration-200", active ? "scale-110" : "scale-100")} />
               <span className="flex-1 truncate">{label}</span>
               {href === "/dashboard/notifications" && unreadCount > 0 && (
                 <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">{unreadCount}</span>
@@ -164,7 +164,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDrawerOpen(false)} />
       {/* Drawer panel */}
-      <div className="relative w-72 max-w-[80vw] bg-white dark:bg-gray-900 flex flex-col h-full shadow-2xl">
+      <div className="relative w-72 max-w-[80vw] bg-white dark:bg-gray-900 flex flex-col h-full shadow-2xl animate-[slide-in-left_0.25s_ease-out]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-3">
@@ -263,32 +263,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <nav className="shrink-0 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex items-stretch">
           {NAV_MOBILE.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
-            const isNotif = href === "/dashboard/notifications";
             return (
               <Link key={href} href={href}
                 className={cn(
-                  "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-colors relative",
+                  "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 relative",
+                  "transition-all duration-200",
                   active
                     ? "text-green-600 dark:text-green-400"
                     : "text-gray-400 dark:text-gray-500"
                 )}>
-                <div className="relative">
-                  <Icon size={21} />
-                  {isNotif && unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-red-500 rounded-full text-white text-[8px] font-bold flex items-center justify-center">
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                  )}
+                <div className={cn(
+                  "relative transition-all duration-200",
+                  active ? "scale-110" : "scale-100"
+                )}>
+                  <Icon
+                    size={21}
+                    className={cn(
+                      "transition-all duration-300",
+                      active ? "stroke-[2.5px]" : "stroke-[1.75px]"
+                    )}
+                  />
                 </div>
                 <span className={cn(
-                  "text-[10px] font-medium leading-none",
-                  active ? "text-green-600 dark:text-green-400" : "text-gray-400 dark:text-gray-500"
+                  "text-[10px] font-medium leading-none transition-all duration-200",
+                  active ? "text-green-600 dark:text-green-400 font-semibold" : "text-gray-400 dark:text-gray-500"
                 )}>
                   {label}
                 </span>
-                {active && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-green-500 rounded-full" />
-                )}
+                <span className={cn(
+                  "absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-green-500 rounded-full transition-all duration-300",
+                  active ? "w-8 opacity-100" : "w-0 opacity-0"
+                )} />
               </Link>
             );
           })}

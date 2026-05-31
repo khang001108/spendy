@@ -53,7 +53,7 @@ export default function DashboardPage() {
   const savings = (stats?.totalIncome || 0) - (stats?.totalExpense || 0);
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-4 w-full page-enter">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -79,28 +79,28 @@ export default function DashboardPage() {
       {/* Asset overview (only when assets exist) */}
       {!loading && assets.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="card bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-0">
+          <div className="card bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-0 overflow-hidden">
             <p className="text-indigo-100 text-sm font-medium">Tổng tài sản</p>
-            <p className="text-2xl font-bold mt-1">{formatVND(totalAssets)}</p>
-            <div className="flex gap-3 mt-2 text-xs text-indigo-200">
-              <span>TC: {formatVND(totalFinancial)}</span>
-              <span>VL: {formatVND(totalPhysical)}</span>
+            <p className="text-xl font-bold mt-1 truncate">{formatVND(totalAssets)}</p>
+            <div className="flex gap-3 mt-2 text-xs text-indigo-200 truncate">
+              <span className="truncate">TC: {formatVND(totalFinancial)}</span>
+              <span className="truncate">VL: {formatVND(totalPhysical)}</span>
             </div>
           </div>
-          <Link href="/dashboard/assets" className="card bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 hover:scale-[1.01] transition-transform">
+          <Link href="/dashboard/assets" className="card bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 hover:scale-[1.01] transition-transform overflow-hidden">
             <div className="flex items-center gap-2 mb-1">
-              <Wallet size={16} className="text-green-100" />
+              <Wallet size={16} className="text-green-100 shrink-0" />
               <p className="text-green-100 text-sm font-medium">Tài chính</p>
             </div>
-            <p className="text-2xl font-bold">{formatVND(totalFinancial)}</p>
+            <p className="text-xl font-bold truncate">{formatVND(totalFinancial)}</p>
             <p className="text-green-100 text-xs mt-1">{financialAssets.length} tài khoản</p>
           </Link>
-          <Link href="/dashboard/assets" className="card bg-gradient-to-br from-blue-500 to-cyan-600 text-white border-0 hover:scale-[1.01] transition-transform">
+          <Link href="/dashboard/assets" className="card bg-gradient-to-br from-blue-500 to-cyan-600 text-white border-0 hover:scale-[1.01] transition-transform overflow-hidden">
             <div className="flex items-center gap-2 mb-1">
-              <Cpu size={16} className="text-blue-100" />
+              <Cpu size={16} className="text-blue-100 shrink-0" />
               <p className="text-blue-100 text-sm font-medium">Vật lý</p>
             </div>
-            <p className="text-2xl font-bold">{formatVND(totalPhysical)}</p>
+            <p className="text-xl font-bold truncate">{formatVND(totalPhysical)}</p>
             <p className="text-blue-100 text-xs mt-1">{physicalAssets.length} thiết bị</p>
           </Link>
         </div>
@@ -113,33 +113,33 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="card bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0">
-            <div className="flex items-start justify-between">
-              <div>
+          <div className="card bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 overflow-hidden">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
                 <p className="text-green-100 text-sm font-medium">Thu tháng này</p>
-                <p className="text-2xl font-bold mt-1">{formatVND(stats?.totalIncome || 0)}</p>
+                <p className="text-xl font-bold mt-1 truncate">{formatVND(stats?.totalIncome || 0)}</p>
               </div>
-              <div className="p-2 bg-white/20 rounded-xl"><TrendingUp size={22} /></div>
+              <div className="p-2 bg-white/20 rounded-xl shrink-0"><TrendingUp size={22} /></div>
             </div>
           </div>
 
-          <div className="card bg-gradient-to-br from-red-500 to-rose-600 text-white border-0">
-            <div className="flex items-start justify-between">
-              <div>
+          <div className="card bg-gradient-to-br from-red-500 to-rose-600 text-white border-0 overflow-hidden">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
                 <p className="text-red-100 text-sm font-medium">Chi tháng này</p>
-                <p className="text-2xl font-bold mt-1">{formatVND(stats?.totalExpense || 0)}</p>
+                <p className="text-xl font-bold mt-1 truncate">{formatVND(stats?.totalExpense || 0)}</p>
               </div>
-              <div className="p-2 bg-white/20 rounded-xl"><TrendingDown size={22} /></div>
+              <div className="p-2 bg-white/20 rounded-xl shrink-0"><TrendingDown size={22} /></div>
             </div>
           </div>
 
-          <div className={`card text-white border-0 bg-gradient-to-br ${savings >= 0 ? "from-blue-500 to-indigo-600" : "from-orange-500 to-amber-600"}`}>
-            <div className="flex items-start justify-between">
-              <div>
+          <div className={`card text-white border-0 overflow-hidden bg-gradient-to-br ${savings >= 0 ? "from-blue-500 to-indigo-600" : "from-orange-500 to-amber-600"}`}>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
                 <p className="text-blue-100 text-sm font-medium">Tiết kiệm tháng</p>
-                <p className="text-2xl font-bold mt-1">{formatVND(savings)}</p>
+                <p className="text-xl font-bold mt-1 truncate">{formatVND(savings)}</p>
               </div>
-              <div className="p-2 bg-white/20 rounded-xl"><PiggyBank size={22} /></div>
+              <div className="p-2 bg-white/20 rounded-xl shrink-0"><PiggyBank size={22} /></div>
             </div>
           </div>
         </div>
