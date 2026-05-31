@@ -188,8 +188,8 @@ export default function SettingsPage() {
     { id: "security",      label: "Bảo mật",    icon: Lock },
     { id: "appearance",    label: "Giao diện",  icon: Sun },
     { id: "data",          label: "Dữ liệu",    icon: Download },
-    { id: "notifications", label: "Thông báo",  icon: Bell },
-    { id: "account",       label: "Tài khoản",  icon: UserX },
+    { id: "notifications", label: "Thông báo", icon: Bell },
+    { id: "account",       label: "Tài khoản", icon: UserX },
   ] as const;
 
   const themeOptions = [
@@ -218,7 +218,7 @@ export default function SettingsPage() {
       <div className="flex gap-1 border-b border-gray-100 dark:border-gray-800 overflow-x-auto pb-0 -mx-1 px-1">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-medium rounded-t-xl border-b-2 transition-all whitespace-nowrap ${
+            className={`flex items-center gap-1 px-2.5 py-2 text-[11px] sm:text-sm font-medium rounded-t-xl border-b-2 transition-all whitespace-nowrap ${
               activeTab === id
                 ? "text-green-700 dark:text-green-400 border-green-500 bg-green-50 dark:bg-green-900/20"
                 : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200"

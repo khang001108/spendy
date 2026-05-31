@@ -203,7 +203,7 @@ export default function GoalsPage() {
                         <div className="flex items-center gap-2">
                           <span className="text-2xl">{goal.icon}</span>
                           <div>
-                            <p className="font-semibold text-gray-900">{goal.name}</p>
+                            <p className="font-semibold text-gray-900 dark:text-white">{goal.name}</p>
                             {daysLeft !== null && (
                               <p className={`text-xs ${daysLeft < 0 ? "text-red-500" : daysLeft < 30 ? "text-orange-500" : "text-gray-400"}`}>
                                 {daysLeft < 0 ? `Quá hạn ${Math.abs(daysLeft)} ngày` : `Còn ${daysLeft} ngày`}

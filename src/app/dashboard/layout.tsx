@@ -185,7 +185,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* ── MOBILE: Hamburger button ── */}
       <button
         onClick={() => setMobileMenuOpen(true)}
-        className="md:hidden fixed top-4 left-4 z-30 p-2 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800">
+        className="md:hidden fixed top-3 left-3 z-30 p-2 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 active:scale-95">
         <Menu size={20} className="text-gray-700 dark:text-gray-300" />
       </button>
 
@@ -215,7 +215,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
         </div>
 
-        <div className="p-4 md:p-6 pb-24 md:pb-6">
+        <div className="p-3 md:p-6 pb-24 md:pb-6 max-w-full overflow-x-hidden">
           {children}
         </div>
       </main>

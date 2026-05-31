@@ -171,7 +171,7 @@ export default function BudgetPage() {
         <div className="card">
           <div className="flex justify-between items-center mb-3">
             <span className="text-sm text-gray-600">Tổng đã chi / Tổng ngân sách</span>
-            <span className="font-bold text-gray-900">
+            <span className="font-bold text-gray-900 dark:text-white">
               {formatVND(totalSpent)} / {formatVND(totalBudget)}
             </span>
           </div>

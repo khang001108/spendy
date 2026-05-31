@@ -218,7 +218,7 @@ export default function DashboardPage() {
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-50 dark:divide-gray-800">
             {transactions.map((tx: any) => (
               <div key={tx.id} className="flex items-center gap-3 py-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
@@ -226,7 +226,7 @@ export default function DashboardPage() {
                   {tx.category.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                     {tx.note || tx.category.name}
                   </p>
                   <p className="text-xs text-gray-400">{tx.category.name} · {formatDate(tx.date)}</p>

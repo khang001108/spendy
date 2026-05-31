@@ -5,6 +5,20 @@
 @layer base {
   * { box-sizing: border-box; }
 
+  /* Touch: hiện action buttons khi touch trên mobile */
+  @media (hover: none) {
+    .group .opacity-0 {
+      opacity: 1 !important;
+    }
+  }
+
+  /* Mobile: remove max-width constraint */
+  @media (max-width: 767px) {
+    .max-w-4xl, .max-w-3xl, .max-w-5xl, .max-w-2xl {
+      max-width: 100% !important;
+    }
+  }
+
   html { @apply scroll-smooth; }
 
   body {
@@ -20,7 +34,8 @@
   }
 
   /* Headings mặc định dark mode */
-  .dark h1, .dark h2, .dark h3, .dark h4 { color: #f9fafb; }
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark p { color: inherit; }
+  .dark { color-scheme: dark; }
 
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }

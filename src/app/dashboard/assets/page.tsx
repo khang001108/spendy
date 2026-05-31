@@ -213,7 +213,7 @@ export default function AssetsPage() {
               <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <Wallet size={18} className="text-green-500" /> Tài sản tài chính
               </h2>
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-gray-50 dark:divide-gray-800">
                 {financial.map(asset => {
                   const gl = asset.currentValue - asset.purchasePrice;
                   return (
@@ -254,7 +254,7 @@ export default function AssetsPage() {
               <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <Cpu size={18} className="text-blue-500" /> Tài sản vật lý
               </h2>
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-gray-50 dark:divide-gray-800">
                 {physical.map(asset => {
                   const gl = asset.currentValue - asset.purchasePrice;
                   const depreciationPct = asset.purchasePrice > 0

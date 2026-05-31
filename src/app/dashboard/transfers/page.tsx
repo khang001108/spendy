@@ -182,7 +182,7 @@ export default function TransfersPage() {
             <p className="text-sm">Chưa có lệnh chuyển nào</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-50 dark:divide-gray-800">
             {transfers.map(tx => (
               <div key={tx.id} className="flex items-center gap-3 py-3">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
