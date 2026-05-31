@@ -29,7 +29,8 @@ const NAV_MOBILE = [
   { href: "/dashboard",               label: "Tổng quan", icon: LayoutDashboard },
   { href: "/dashboard/transactions",  label: "Giao dịch", icon: ArrowLeftRight },
   { href: "/dashboard/assets",        label: "Tài sản",   icon: Wallet },
-  { href: "/dashboard/goals",         label: "Mục tiêu",  icon: Target },
+  // { href: "/dashboard/goals",         label: "Mục tiêu",  icon: Target },
+  { href: "/dashboard/stats",        label: "Thống kê",  icon: BarChart3 },
   { href: "/dashboard/settings",      label: "Cài đặt",   icon: Settings },
 ];
 
