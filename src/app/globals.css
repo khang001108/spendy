@@ -5,21 +5,27 @@
 @layer base {
   * { box-sizing: border-box; }
 
+  html { @apply scroll-smooth; }
+
   body {
-    @apply bg-gray-50 text-gray-900 antialiased transition-colors duration-200;
+    @apply bg-gray-50 text-gray-900 antialiased;
   }
+  .dark body { @apply bg-gray-950 text-gray-100; }
 
-  .dark body,
-  body.dark {
-    @apply bg-gray-950 text-gray-100;
-  }
-
-  /* Smooth transitions for dark mode */
+  /* Chỉ transition background/border, KHÔNG transition color để tránh chữ mất */
   *, *::before, *::after {
-    transition-property: background-color, border-color, color;
+    transition-property: background-color, border-color, box-shadow;
     transition-duration: 150ms;
     transition-timing-function: ease;
   }
+
+  /* Headings mặc định dark mode */
+  .dark h1, .dark h2, .dark h3, .dark h4 { color: #f9fafb; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-gray-300 dark:bg-gray-600 rounded-full; }
 }
 
 @layer components {
@@ -31,26 +37,30 @@
 
   /* Buttons */
   .btn-primary {
-    @apply bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-xl transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-green-500 hover:bg-green-600 active:scale-95 text-white font-semibold px-4 py-2 rounded-xl transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-secondary {
     @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-xl transition-all duration-150;
     @apply dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200;
   }
   .btn-danger {
-    @apply bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-xl transition-all duration-150;
+    @apply bg-red-500 hover:bg-red-600 active:scale-95 text-white font-semibold px-4 py-2 rounded-xl transition-all duration-150;
   }
 
-  /* Input */
+  /* Input — đảm bảo chữ luôn hiển thị */
   .input {
-    @apply w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all bg-white text-gray-900;
+    @apply w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
+           focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent
+           bg-white text-gray-900 placeholder-gray-400;
     @apply dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder-gray-500;
+  }
+  .input:disabled {
+    @apply opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-900;
   }
 
   /* Label */
   .label {
-    @apply block text-sm font-medium text-gray-700 mb-1;
-    @apply dark:text-gray-300;
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
   }
 
   /* Badges */
@@ -61,5 +71,33 @@
   .badge-expense {
     @apply inline-flex items-center gap-1 bg-red-50 text-red-700 text-xs font-medium px-2 py-0.5 rounded-full;
     @apply dark:bg-red-900/40 dark:text-red-400;
+  }
+
+  /* Page title */
+  .page-title {
+    @apply text-2xl font-bold text-gray-900 dark:text-white;
+  }
+  .page-subtitle {
+    @apply text-gray-500 dark:text-gray-400 text-sm mt-0.5;
+  }
+
+  /* Mobile bottom nav */
+  .mobile-nav {
+    @apply fixed bottom-0 left-0 right-0 z-50
+           bg-white dark:bg-gray-900
+           border-t border-gray-100 dark:border-gray-800
+           flex items-center justify-around
+           px-2 py-2 safe-area-inset-bottom
+           md:hidden;
+  }
+  .mobile-nav-item {
+    @apply flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl
+           text-gray-400 dark:text-gray-500 transition-colors min-w-0;
+  }
+  .mobile-nav-item.active {
+    @apply text-green-600 dark:text-green-400;
+  }
+  .mobile-nav-label {
+    @apply text-[10px] font-medium leading-tight truncate;
   }
 }

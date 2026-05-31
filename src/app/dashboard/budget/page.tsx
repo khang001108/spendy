@@ -134,8 +134,8 @@ export default function BudgetPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Ngân sách</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Kiểm soát chi tiêu theo danh mục</p>
+          <h1 className="page-title">Ngân sách</h1>
+          <p className="page-subtitle">Kiểm soát chi tiêu theo danh mục</p>
         </div>
         <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
           <Plus size={18} /> Thêm ngân sách

@@ -167,8 +167,8 @@ export default function AssetsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tài sản</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Quản lý tài sản tài chính & vật lý</p>
+          <h1 className="page-title">Tài sản</h1>
+          <p className="page-subtitle">Quản lý tài sản tài chính & vật lý</p>
         </div>
         <button onClick={() => { setEditAsset(undefined); setShowModal(true); }} className="btn-primary flex items-center gap-2">
           <Plus size={18} /> Thêm tài sản
@@ -210,7 +210,7 @@ export default function AssetsPage() {
           {/* Financial Assets */}
           {financial.length > 0 && (
             <div className="card">
-              <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <Wallet size={18} className="text-green-500" /> Tài sản tài chính
               </h2>
               <div className="divide-y divide-gray-50">
@@ -222,11 +222,11 @@ export default function AssetsPage() {
                         {asset.subtype === "Tiền mặt" ? "💵" : asset.subtype?.includes("VCB") ? "🏦" : asset.subtype?.includes("MB") ? "🏧" : asset.subtype?.includes("Momo") ? "💜" : "💳"}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900">{asset.name}</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{asset.name}</p>
                         <p className="text-xs text-gray-400">{asset.subtype || asset.type}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-gray-900 text-sm">{formatVND(asset.currentValue)}</p>
+                        <p className="font-bold text-gray-900 dark:text-white text-sm">{formatVND(asset.currentValue)}</p>
                         {gl !== 0 && (
                           <p className={`text-xs ${gl > 0 ? "text-green-500" : "text-red-400"}`}>
                             {gl > 0 ? "+" : ""}{formatVND(gl)}
@@ -251,7 +251,7 @@ export default function AssetsPage() {
           {/* Physical Assets */}
           {physical.length > 0 && (
             <div className="card">
-              <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <Cpu size={18} className="text-blue-500" /> Tài sản vật lý
               </h2>
               <div className="divide-y divide-gray-50">
@@ -266,7 +266,7 @@ export default function AssetsPage() {
                         {asset.subtype?.includes("Laptop") ? "💻" : asset.subtype?.includes("Xe") ? "🛵" : asset.subtype?.includes("Ô tô") ? "🚗" : asset.subtype?.includes("Raspberry") ? "🍓" : "📦"}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900">{asset.name}</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{asset.name}</p>
                         <div className="flex items-center gap-2 mt-0.5">
                           <p className="text-xs text-gray-400">{asset.subtype}</p>
                           {asset.purchaseDate && (
@@ -275,7 +275,7 @@ export default function AssetsPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-gray-900 text-sm">{formatVND(asset.currentValue)}</p>
+                        <p className="font-bold text-gray-900 dark:text-white text-sm">{formatVND(asset.currentValue)}</p>
                         {depreciationPct !== 0 && (
                           <p className={`text-xs ${depreciationPct > 0 ? "text-green-500" : "text-orange-400"}`}>
                             {depreciationPct > 0 ? "+" : ""}{depreciationPct.toFixed(1)}%

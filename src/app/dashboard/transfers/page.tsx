@@ -152,8 +152,8 @@ export default function TransfersPage() {
     <div className="space-y-6 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Chuyển tài sản</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Chuyển tiền giữa các tài khoản & ví</p>
+          <h1 className="page-title">Chuyển tài sản</h1>
+          <p className="page-subtitle">Chuyển tiền giữa các tài khoản & ví</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
@@ -172,7 +172,7 @@ export default function TransfersPage() {
       )}
 
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-4">Lịch sử chuyển</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Lịch sử chuyển</h2>
 
         {loading ? (
           <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />)}</div>
@@ -187,12 +187,12 @@ export default function TransfersPage() {
               <div key={tx.id} className="flex items-center gap-3 py-3">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <div className="text-center min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{tx.fromAsset.name}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{tx.fromAsset.name}</p>
                     <p className="text-xs text-gray-400 truncate">{tx.fromAsset.subtype}</p>
                   </div>
                   <ArrowRight size={16} className="text-gray-400 shrink-0" />
                   <div className="text-center min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{tx.toAsset.name}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{tx.toAsset.name}</p>
                     <p className="text-xs text-gray-400 truncate">{tx.toAsset.subtype}</p>
                   </div>
                 </div>
