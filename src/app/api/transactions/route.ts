@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
   const month = parseInt(searchParams.get("month") || "0");
   const year = parseInt(searchParams.get("year") || "0");
   const type = searchParams.get("type") || "";
+  const categoryId = searchParams.get("categoryId") || "";
   const limit = parseInt(searchParams.get("limit") || "50");
 
   const where: any = { userId: session.user.id };
@@ -20,6 +21,7 @@ export async function GET(req: NextRequest) {
     where.date = { gte: start, lte: end };
   }
   if (type) where.type = type;
+  if (categoryId) where.categoryId = categoryId;
 
   const transactions = await db.transaction.findMany({
     where,
