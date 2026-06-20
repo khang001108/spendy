@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { formatVND } from "@/lib/utils";
 
@@ -18,6 +19,16 @@ export function TransactionModal({ onClose, onSaved, editTx }: Props) {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  // Lock background scroll while modal is open
+  useEffect(() => {
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = original; };
+  }, []);
 
   useEffect(() => {
     fetch(`/api/categories?type=${type}`).then((r) => r.json()).then((data) => {
@@ -47,8 +58,10 @@ export function TransactionModal({ onClose, onSaved, editTx }: Props) {
     setAmount(clean);
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 animate-[fade-in_0.2s_ease-out]">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[100] p-0 sm:p-4 animate-[fade-in_0.2s_ease-out]">
       <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md border border-gray-100 dark:border-gray-800 modal-enter flex flex-col max-h-[90dvh]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
@@ -126,6 +139,7 @@ export function TransactionModal({ onClose, onSaved, editTx }: Props) {
           </button>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

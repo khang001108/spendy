@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatVND, formatMonth, getCurrentMonth, formatDate } from "@/lib/utils";
 import { Plus, Trash2, ChevronLeft, ChevronRight, AlertTriangle, X, TrendingDown, Receipt } from "lucide-react";
 
@@ -33,6 +34,9 @@ function BudgetModal({ categories, month, year, onClose, onSaved }: {
   const [form, setForm] = useState({ categoryId: "", amount: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   async function handleSubmit() {
     if (!form.categoryId || !form.amount) {
@@ -59,8 +63,10 @@ function BudgetModal({ categories, month, year, onClose, onSaved }: {
     }
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm">
         <div className="p-6">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5">Thêm ngân sách</h2>
@@ -94,7 +100,8 @@ function BudgetModal({ categories, month, year, onClose, onSaved }: {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -106,6 +113,9 @@ function BudgetDetailPanel({ budget, month, year, onClose }: {
 }) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     fetch(`/api/transactions?month=${month}&year=${year}&categoryId=${budget.category.id}&type=expense`)
@@ -126,8 +136,10 @@ function BudgetDetailPanel({ budget, month, year, onClose }: {
   const isNear = budget.percentage >= 80 && budget.percentage <= 100;
   const barColor = isOver ? "bg-red-500" : isNear ? "bg-orange-400" : "bg-green-500";
 
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[100] p-0 sm:p-4">
       <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md flex flex-col max-h-[88dvh] animate-[fade-up_0.25s_ease-out]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
@@ -226,7 +238,8 @@ function BudgetDetailPanel({ budget, month, year, onClose }: {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
